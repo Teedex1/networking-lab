@@ -1,0 +1,30 @@
+[
+    {
+        "IpProtocol": "tcp",
+        "FromPort": 5432,
+        "ToPort": 5432,
+        "UserIdGroupPairs": [],
+        "IpRanges": [
+            {
+                "Description": "Postgres from anywhere (INC-4524)",
+                "CidrIp": "0.0.0.0/0"
+            }
+        ],
+        "Ipv6Ranges": [],
+        "PrefixListIds": []
+    },
+    {
+        "IpProtocol": "tcp",
+        "FromPort": 22,
+        "ToPort": 22,
+        "UserIdGroupPairs": [],
+        "IpRanges": [
+            {
+                "Description": "SSH from anywhere (INC-4524)",
+                "CidrIp": "0.0.0.0/0"
+            }
+        ],
+        "Ipv6Ranges": [],
+        "PrefixListIds": []
+    }
+]
