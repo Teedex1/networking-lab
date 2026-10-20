@@ -156,12 +156,14 @@ while remaining private (no public IP).
 private IPv4 addresses through the Amazon-provided DNS resolver and the system
 resolver on all four instances. Hosts-file-only workarounds do not count.
 
-| Run from | Command | Expected result |
-|----------|---------|-----------------|
-| Each instance | `dig +short @169.254.169.253 web.internal.test A` | Only the web instance's private IP. |
-| Each instance | `getent ahostsv4 web.internal.test` | The same private IP; repeated rows are normal. |
+On all four instances (bastion, web, API, and database), run both commands,
+replacing `<hostname>` with each of `web.internal.test`, `api.internal.test`,
+and `db.internal.test`.
 
-Repeat for `api.internal.test` and `db.internal.test`, expecting their respective IPs.
+| Command | Expected result |
+|---------|-----------------|
+| `dig +short @169.254.169.253 <hostname> A` | Only the service's private IP via cloud DNS. |
+| `getent ahostsv4 <hostname>` | The same private IP via the system resolver; repeated rows are normal. |
 
 ---
 

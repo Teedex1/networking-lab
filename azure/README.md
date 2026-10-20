@@ -149,12 +149,14 @@ different SSH username.
 **Done when:** All three service names resolve to the correct private IPv4 addresses
 through cloud and system DNS on all four VMs.
 
-| Run from | Command | Expected result |
-|----------|---------|-----------------|
-| Each VM | `dig +short @168.63.129.16 web.internal.test A` | The web VM's private IP, with no incorrect addresses. |
-| Each VM | `getent ahostsv4 web.internal.test` | The same private IP; repeated rows are normal. |
+On all four VMs (bastion, web, API, and database), run both commands,
+replacing `<hostname>` with each of `web.internal.test`, `api.internal.test`,
+and `db.internal.test`.
 
-Repeat for `api.internal.test` and `db.internal.test`, expecting their respective private IPs.
+| Command | Expected result |
+|---------|-----------------|
+| `dig +short @168.63.129.16 <hostname> A` | Only the service's private IP via cloud DNS. |
+| `getent ahostsv4 <hostname>` | The same private IP via the system resolver; repeated rows are normal. |
 
 ---
 
