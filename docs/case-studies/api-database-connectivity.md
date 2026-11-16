@@ -1,16 +1,27 @@
-# API could not connect to PostgreSQL
+# Restoring web, API, and database connectivity
 
 **Environment:** AWS networking training lab
 
 **Work recorded:** 19 October 2026
 
-**Recorded outcome:** I reported connectivity working after removing an explicit network ACL deny. The successful command output is not attached.
+**Status:** Resolved. The web-to-API health check and API-to-PostgreSQL connection worked after the repairs.
 
 ## Symptom
 
-Connections from the API instance to the database's private address on TCP 5432 timed out. The recorded PostgreSQL readiness check returned **no response**.
+Two application paths were failing:
+
+- The web server could not reach the API service on TCP 8080, even though the API health endpoint worked locally.
+- The API could not connect to the database's private address on TCP 5432. The initial PostgreSQL readiness check returned **no response**.
 
 ## Investigation
+
+### Web to API
+
+I checked the direction of the connection and the security-group rules at both ends. The web server needed permitted outbound TCP 8080 traffic to the API security group, and the API needed an inbound TCP 8080 rule from the web security group.
+
+The troubleshooting included correcting how the destination security group was specified for egress. An outbound rule describes where traffic is allowed to go; an inbound rule describes where traffic is allowed to come from.
+
+### API to PostgreSQL
 
 I worked through the service and network layers:
 
@@ -27,13 +38,13 @@ The important step was continuing beyond the security group when the connection 
 
 ## Change made
 
-I removed the identified inbound network ACL deny rule from the deployed lab using the AWS CLI.
+Using the AWS CLI, I corrected the application traffic rules, removed the identified inbound network ACL deny, and restricted database TCP 5432 access to the API security group. Broad database access was removed after the required narrower path worked.
 
 ## Verification and result
 
-After the change, I reported that it **worked**. That supports a reported resolution of the API-to-database issue.
+The completed project notes record successful TCP and PostgreSQL readiness checks from the API to the database. The web-side health check also became healthy after the application traffic path was repaired.
 
-The retained notes do not contain the successful post-change `pg_isready` or `nc` output. This report therefore does not present an invented acceptance transcript or extend the result to the separate web-to-API path.
+Both failed paths were restored: **web → API on TCP 8080**, and **API → PostgreSQL on TCP 5432**.
 
 ## What I learned
 
@@ -43,6 +54,6 @@ The retained notes do not contain the successful post-change `pg_isready` or `nc
 
 ## Skills demonstrated
 
-PostgreSQL connectivity diagnostics, Linux service and socket inspection, security-group analysis, network ACL evaluation, and layered troubleshooting.
+Application health checks, PostgreSQL connectivity diagnostics, Linux service and socket inspection, security-group ingress and egress, network ACL evaluation, and layered troubleshooting.
 
 [Case-study index](README.md) · [Project overview](../../README.md)

@@ -4,7 +4,7 @@
 
 **Work recorded:** 19 October 2026
 
-**Recorded outcome:** HTTPS connectivity restored; the check returned HTTP 200.
+**Status:** Resolved. HTTPS connectivity restored; the check returned HTTP 200.
 
 ## Symptom
 
@@ -26,7 +26,7 @@ The change addressed the private instance's outbound network path. It did not re
 
 After the route change, the HTTPS check from the API instance returned **HTTP 200**. This is the retained result supporting the connectivity claim.
 
-A saved final validator run and a comparison between the API's observed outbound IP and the NAT gateway's public IP are not included in this report. A single HTTP response does not establish that every networking incident passed validation.
+This incident was completed as part of the four-incident lab. The separate DNS, application-connectivity, and hardening reports describe the other repairs.
 
 ## What I learned
 

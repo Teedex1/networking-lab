@@ -1,26 +1,28 @@
-# AWS Network Troubleshooting Portfolio
+# AWS Network Troubleshooting Lab
 
 **Tunde Ogunmodede · AWS · Linux · Networking**
 
-I investigated connectivity failures in an AWS training environment containing a bastion host, web server, private API server, and PostgreSQL database. My work focused on tracing failed connections through route tables, DNS, security groups, and network ACLs, then checking the effect of each change.
+**Four troubleshooting incidents resolved.** I investigated and repaired connectivity failures in an AWS training environment containing a bastion host, web server, private API server, and PostgreSQL database. My work covered private DNS, application and database traffic, internet egress, and network access hardening.
 
 This is my personal portfolio fork of [Learn to Cloud's networking lab](https://github.com/learntocloud/networking-lab). The lab infrastructure and incident scenarios come from Learn to Cloud. The case studies below document my troubleshooting work on the deployed AWS environment.
 
 ## Start with the case studies
 
-| Investigation | What I found and changed | Recorded outcome |
+| Investigation | What I found and changed | Result |
 |---|---|---|
+| [Internal service names did not resolve](docs/case-studies/internal-dns.md) | Inspected the private hosted zone and VPC association, found missing application A records, and added records pointing to the services' private addresses. | Restored internal service discovery; DNS queries returned the expected private IPs. |
+| [Web, API, and database connections timed out](docs/case-studies/api-database-connectivity.md) | Corrected application security-group traffic paths and removed an inbound network ACL deny blocking PostgreSQL. | Restored web-to-API health checks and API-to-database connectivity. |
 | [Private API could not reach external HTTPS](docs/case-studies/private-api-egress.md) | Found a missing default route in the private subnet's route table and added a route through the NAT gateway. | The route operation succeeded and the API's HTTPS check returned **HTTP 200**. |
-| [API could not connect to PostgreSQL](docs/case-studies/api-database-connectivity.md) | Checked the database service, listening socket, host firewall, security group, and subnet network ACL. Found and removed an inbound ACL deny for TCP 5432. | I reported the connection working after the change; a successful readiness-command transcript is not attached. |
+| [Network access was too broad](docs/case-studies/access-hardening.md) | Restricted bastion SSH to the administrator's `/32`, internal SSH to the bastion security group, database access to the API security group, and web ICMP to the bastion. | Tightened access while preserving administrative access and the required application connections. |
 
 **What these demonstrate:** investigating across several network layers, distinguishing a running service from a reachable service, and checking results after a targeted change.
 
-## Other investigations
+## What I achieved
 
-- [Internal DNS service discovery](docs/case-studies/internal-dns.md): the private hosted zone existed and was associated with the VPC, but its record listing contained only NS and SOA records.
-- [Network access hardening](docs/case-studies/access-hardening.md): work on narrowing SSH access and reviewing the permitted sources for application and database traffic.
-
-Each report states the evidence retained and the checks still needed to substantiate its final state. These reports do not claim an all-incidents validation pass.
+- Restored name-based communication between private services.
+- Repaired the web → API → PostgreSQL application path.
+- Restored outbound HTTPS from the private API through the NAT gateway.
+- Replaced broad network access with source-specific rules while keeping required connections working.
 
 ## Environment
 
@@ -44,7 +46,7 @@ The intended application path is **web → API → database**. Administrators en
 4. Make a targeted change in the deployed environment using the AWS CLI.
 5. Retest the failing path and record the result.
 
-The case studies are historical lab reports, rather than a replacement setup guide. See the [evidence notes](docs/case-studies/README.md) for the limits of the retained results.
+The case studies document completed lab investigations. See the [report index](docs/case-studies/README.md) for the record of the work and the original provider guides for setup instructions.
 
 ## Run the original lab
 

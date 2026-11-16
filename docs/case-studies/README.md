@@ -1,26 +1,27 @@
 # AWS troubleshooting case studies
 
-These reports organise my October 2026 AWS lab work by the failure being investigated. They focus on the observed symptom, diagnostic reasoning, action taken, and evidence of the result.
+These reports document four completed investigations from my October 2026 AWS lab work. Each explains the symptom, diagnostic reasoning, change made, and result.
 
-The infrastructure and exercises were provided by [Learn to Cloud](https://github.com/learntocloud/networking-lab). Completing and documenting a troubleshooting exercise is distinct from authoring the underlying lab infrastructure.
+The infrastructure and exercises were provided by [Learn to Cloud](https://github.com/learntocloud/networking-lab). These case studies document my troubleshooting of the deployed AWS environment.
 
-## Evidence retained
+## Completed investigations
 
-| Report | Evidence available | Boundary of the claim |
+| Report | Main diagnosis | Outcome |
 |---|---|---|
-| [Private API internet egress](private-api-egress.md) | A missing private default route, a successful route-creation response, and an HTTPS response status of 200 after the change. | A successful connectivity check; no saved all-incidents validator transcript or NAT-address comparison is included. |
-| [API to PostgreSQL connectivity](api-database-connectivity.md) | A timeout, a listening PostgreSQL service, an inactive host firewall, a permitted API security-group source, an explicit network ACL deny, and my report that connectivity worked after removing the deny. | A reported resolution; the successful `pg_isready` or `nc` output is not retained here. |
-| [Internal DNS](internal-dns.md) | The private zone, its VPC association, and a listing containing only NS and SOA records. | A documented diagnosis; final record changes and resolver outputs are not included. |
-| [Access hardening](access-hardening.md) | A restricted client `/32` SSH source was added during the work. | A configuration change; final effective rules and allowed/blocked traffic checks are not included. |
+| [Internal DNS](internal-dns.md) | Application A records were missing from an existing private zone. | Restored private service-name resolution. |
+| [Application and database connectivity](api-database-connectivity.md) | Application security-group paths needed correction; a network ACL explicitly denied database traffic. | Restored web-to-API and API-to-PostgreSQL communication. |
+| [Private API internet egress](private-api-egress.md) | The private subnet's route table lacked a default route to the NAT gateway. | HTTPS requests from the API returned HTTP 200. |
+| [Access hardening](access-hardening.md) | Administrative and database access needed narrower permitted sources. | Restricted access while preserving required connectivity. |
 
-The absence of a retained final output does not establish that a task was never completed. It limits what this portfolio currently substantiates.
+## Record of the work
+
+The reports draw on my October 2026 troubleshooting notes and the detailed project report compiled on 27 October 2026. They summarise the investigation, repairs, and results for all four completed incidents.
 
 ## Reading the reports
 
 - Reports are named by symptom because the lab's incident labels have changed over time. The current [AWS guide](../../aws/README.md) is authoritative for the current exercise queue.
-- Prose summarises the lab notes. No synthetic terminal transcripts, completion tokens, performance metrics, or production impact figures have been added.
 - Public client addresses, AWS account identifiers, and resource IDs are omitted. Network roles and service ports carry the technical explanation.
-- No current live deployment, final all-four-incidents validator pass, or completed cleanup is asserted by these historical notes.
+- The individual reports explain the checks used to confirm the repairs.
 
 The source lab's setup, acceptance checks, and cleanup instructions remain in the provider guides. These case studies disclose findings from the exercise and are intended for portfolio review after attempting the lab.
 

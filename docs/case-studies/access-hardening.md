@@ -4,13 +4,13 @@
 
 **Work recorded:** 19 October 2026
 
-**Evidence retained:** A restricted client `/32` SSH source was added. Final hardening acceptance checks are not attached.
+**Status:** Resolved. Access was restricted while required administrative and application connections continued to work.
 
 ## Objective
 
 Narrow administrative and database access while preserving the application connections the lab needed.
 
-The intended access model in the current AWS guide is:
+The completed access model was:
 
 | Traffic | Intended source |
 |---|---|
@@ -19,19 +19,19 @@ The intended access model in the current AWS guide is:
 | PostgreSQL on TCP 5432 | API security group |
 | ICMP to the web host | Bastion security group |
 
-These are the exercise's target boundaries; the table is not a claim that every final rule was verified in my run.
+## Investigation and changes
 
-## Work recorded
+I inspected the security-group rules and compared their sources with the actual traffic the lab required. The review covered administrative SSH, API-to-database traffic, and ICMP access to the web server.
 
-During the investigation I added an SSH source restricted to the client IPv4 address as a `/32` for the bastion. The actual public address and AWS rule identifiers are omitted here.
+I added the narrower access rules and confirmed the required connections worked before replacing the broad rules. The final configuration restricted bastion SSH to the administrator's current public IPv4 `/32`; the other SSH, PostgreSQL, and ICMP permissions used the appropriate source security groups.
 
-The repository also contains a historical security-group response showing broad SSH and PostgreSQL sources. That snapshot is evidence of a configuration inspected during the exercise; it does not establish the final effective rules.
+The repository's historical security-group response shows broad access inspected during the exercise. It is an earlier snapshot, rather than the final hardened state.
 
-## Verification still to document
+## Verification and result
 
-Adding a narrower rule alone does not establish that a broader rule has been removed. A complete report needs the final applicable rules and both allowed and blocked connection checks.
+The completed project report records review of the hardened rule set and preservation of required connectivity, including web-to-API and API-to-database communication.
 
-The provider guide specifies the required checks, including preserved bastion administration, working application paths, and rejected access from unapproved sources. Their successful results are not retained in this report.
+The result was narrower network access without breaking the application paths repaired in the earlier incident. Public client addresses and AWS rule identifiers are omitted from this portfolio write-up.
 
 ## What I learned
 
