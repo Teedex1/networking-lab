@@ -1,35 +1,61 @@
-# Networking Lab
+# AWS Network Troubleshooting Portfolio
 
-Fix deliberately broken cloud network infrastructure. Learn by troubleshooting real incidents.
+**Tunde Ogunmodede · AWS · Linux · Networking**
 
-## Choose Your Cloud
+I investigated connectivity failures in an AWS training environment containing a bastion host, web server, private API server, and PostgreSQL database. My work focused on tracing failed connections through route tables, DNS, security groups, and network ACLs, then checking the effect of each change.
 
-| Provider | Status | Guide |
-|----------|--------|-------|
-| Azure | ✅ Available | [azure/README.md](azure/README.md) |
-| AWS | ✅ Available | [aws/README.md](aws/README.md) |
-| GCP | ✅ Available | [gcp/README.md](gcp/README.md) |
+This is my personal portfolio fork of [Learn to Cloud's networking lab](https://github.com/learntocloud/networking-lab). The lab infrastructure and incident scenarios come from Learn to Cloud. The case studies below document my troubleshooting work on the deployed AWS environment.
 
-## What You'll Learn
+## Start with the case studies
 
-- **Routing & Gateways** — NAT gateways, route tables, internet egress
-- **DNS Resolution** — Private DNS zones, service discovery
-- **Network Security** — Security groups, firewall rules, subnet isolation
-- **Troubleshooting** — Real-world diagnostic techniques
+| Investigation | What I found and changed | Recorded outcome |
+|---|---|---|
+| [Private API could not reach external HTTPS](docs/case-studies/private-api-egress.md) | Found a missing default route in the private subnet's route table and added a route through the NAT gateway. | The route operation succeeded and the API's HTTPS check returned **HTTP 200**. |
+| [API could not connect to PostgreSQL](docs/case-studies/api-database-connectivity.md) | Checked the database service, listening socket, host firewall, security group, and subnet network ACL. Found and removed an inbound ACL deny for TCP 5432. | I reported the connection working after the change; a successful readiness-command transcript is not attached. |
 
-## How It Works
+**What these demonstrate:** investigating across several network layers, distinguishing a running service from a reachable service, and checking results after a targeted change.
 
-1. **Deploy** — Run the setup script. Infrastructure deploys with intentional misconfigurations.
-2. **Read the incidents** — Ticket descriptions tell you the symptoms. Your job is to find the root cause.
-3. **Diagnose** — SSH through the bastion host into VMs to test connectivity, check DNS, inspect services, etc.
-4. **Fix** — From your local terminal, use the cloud provider CLI (`az`, `aws`, `gcloud`) to fix the misconfigured cloud resources (routes, firewall rules, DNS records, etc.). You are not editing Terraform or fixing things from inside the VMs.
-5. **Validate** — Run the validation script from your local machine. It SSHes into the VMs and runs real connectivity checks.
-6. **Clean up** — Run the provider's destroy script when finished.
+## Other investigations
 
-## Having Trouble?
+- [Internal DNS service discovery](docs/case-studies/internal-dns.md): the private hosted zone existed and was associated with the VPC, but its record listing contained only NS and SOA records.
+- [Network access hardening](docs/case-studies/access-hardening.md): work on narrowing SSH access and reviewing the permitted sources for application and database traffic.
 
-Report bugs, broken instructions, or unclear steps through [GitHub Issues](https://github.com/learntocloud/networking-lab/issues/new/choose).
+Each report states the evidence retained and the checks still needed to substantiate its final state. These reports do not claim an all-incidents validation pass.
 
-## Contributing
+## Environment
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and the manual testing required before opening a pull request.
+| Component | Role |
+|---|---|
+| Bastion | SSH entry point into the lab |
+| Web server | Public application entry point |
+| API server | Private application service on TCP 8080 |
+| PostgreSQL database | Private database service on TCP 5432 |
+| NAT gateway and route tables | Outbound internet path for private resources |
+| Route 53 private hosted zone | Internal service-name resolution |
+| Security groups and network ACLs | Network access controls at different layers |
+
+The intended application path is **web → API → database**. Administrators enter through the bastion, and the private API uses the NAT gateway for external HTTPS. The [AWS lab guide](aws/README.md) contains the full topology.
+
+## How I approached troubleshooting
+
+1. Identify the source, destination, port, and exact failure symptom.
+2. Check whether the destination service is running and listening.
+3. Inspect the relevant DNS, routes, and network access controls.
+4. Make a targeted change in the deployed environment using the AWS CLI.
+5. Retest the failing path and record the result.
+
+The case studies are historical lab reports, rather than a replacement setup guide. See the [evidence notes](docs/case-studies/README.md) for the limits of the retained results.
+
+## Run the original lab
+
+The upstream lab intentionally deploys broken networking. Use its provider guides for prerequisites, setup, validation, and cleanup:
+
+| Provider | Lab guide |
+|---|---|
+| AWS — the environment used in these reports | [AWS guide](aws/README.md) |
+| Azure — included upstream | [Azure guide](azure/README.md) |
+| GCP — included upstream | [GCP guide](gcp/README.md) |
+
+The [original lab overview](docs/lab-overview.md) is preserved separately. Terraform, setup scripts, intentional faults, and validators are unchanged by this portfolio documentation.
+
+The lab creates billable resources. Follow the provider guide's cleanup procedure when finished. Contribution guidance remains in [CONTRIBUTING.md](CONTRIBUTING.md).
